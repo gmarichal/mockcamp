@@ -1,0 +1,198 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Auth & Users ────────────────────────────────────────────────────────────
+
+model User {
+  id                 String        @id @default(uuid())
+  email              String        @unique
+  name               String
+  passwordHash       String
+  isActive           Boolean       @default(true)
+  isAdmin            Boolean       @default(false)
+  mustChangePassword Boolean       @default(true)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  projectRoles       ProjectRole[]
+}
+
+model ProjectRole {
+  id        String          @id @default(uuid())
+  userId    String
+  projectId String
+  role      ProjectRoleType
+  createdAt DateTime        @default(now())
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+}
+
+enum ProjectRoleType {
+  PROJECT_ADMIN
+  TESTER
+}
+
+// ─── Projects ────────────────────────────────────────────────────────────────
+
+model Project {
+  id          String        @id @default(uuid())
+  name        String
+  slug        String        @unique
+  description String?
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  paths       Path[]
+  projectRoles ProjectRole[]
+  variables   Variable[]
+  requestLogs RequestLog[]
+}
+
+// ─── Paths ───────────────────────────────────────────────────────────────────
+
+model Path {
+  id        String     @id @default(uuid())
+  name      String
+  path      String
+  projectId String
+  parentId  String?
+  order     Int        @default(0)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parent    Path?      @relation("PathChildren", fields: [parentId], references: [id])
+  children  Path[]     @relation("PathChildren")
+  resources Resource[]
+}
+
+// ─── Resources ───────────────────────────────────────────────────────────────
+
+model Resource {
+  id          String      @id @default(uuid())
+  pathId      String
+  method      HttpMethod
+  customPath  String?
+  isActive    Boolean     @default(true)
+  delay       Int?
+  delayMin    Int?
+  delayMax    Int?
+  errorRate   Float       @default(0)
+  strategy    Strategy    @default(FIXED)
+  seqIndex    Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  path        Path        @relation(fields: [pathId], references: [id], onDelete: Cascade)
+  responses   Response[]
+  variables   Variable[]
+  conditions  Condition[]
+  requestLogs RequestLog[]
+}
+
+enum HttpMethod {
+  GET
+  POST
+  PUT
+  PATCH
+  DELETE
+  HEAD
+  OPTIONS
+}
+
+enum Strategy {
+  FIXED
+  CONDITIONAL
+  SEQUENTIAL
+  RANDOM
+}
+
+// ─── Responses ───────────────────────────────────────────────────────────────
+
+model Response {
+  id          String           @id @default(uuid())
+  resourceId  String
+  name        String?
+  statusCode  Int              @default(200)
+  bodyType    BodyType         @default(JSON)
+  body        String?
+  isDefault   Boolean          @default(false)
+  weight      Int              @default(1)
+  order       Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  resource    Resource         @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  headers     ResponseHeader[]
+  conditions  Condition[]
+}
+
+enum BodyType {
+  JSON
+  XML
+  TEXT
+}
+
+model ResponseHeader {
+  id         String   @id @default(uuid())
+  responseId String
+  key        String
+  value      String
+  response   Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
+}
+
+// ─── Conditions (for Conditional strategy) ───────────────────────────────────
+
+model Condition {
+  id         String   @id @default(uuid())
+  resourceId String
+  responseId String
+  expression String
+  order      Int      @default(0)
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  response   Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
+}
+
+// ─── Variables ───────────────────────────────────────────────────────────────
+
+model Variable {
+  id         String       @id @default(uuid())
+  name       String
+  type       VariableType
+  value      String?
+  expression String?
+  projectId  String?
+  resourceId String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  project    Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  resource   Resource?    @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+}
+
+enum VariableType {
+  STATIC
+  DYNAMIC
+}
+
+// ─── Request Logs ─────────────────────────────────────────────────────────────
+
+model RequestLog {
+  id             String   @id @default(uuid())
+  projectId      String
+  resourceId     String?
+  method         String
+  path           String
+  requestHeaders  Json?
+  requestBody     String?
+  statusCode      Int
+  responseHeaders Json?
+  responseBody    String?
+  latencyMs      Int
+  createdAt      DateTime @default(now())
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  resource       Resource? @relation(fields: [resourceId], references: [id])
+}

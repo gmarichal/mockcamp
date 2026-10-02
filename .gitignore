@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+.env.local
+*.env
+prisma/dev.db
+.DS_Store
+*.log
+.pnpm-store/
+bash.exe.stackdump

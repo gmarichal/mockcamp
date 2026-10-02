@@ -1,0 +1,18 @@
+{
+  "name": "mockcamp-root",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix packages/server\" \"npm run dev --prefix packages/client\"",
+    "build": "npm run build --prefix packages/client && npm run build --prefix packages/server",
+    "db:migrate": "npm run db:migrate --prefix packages/server",
+    "db:studio": "npm run db:studio --prefix packages/server",
+    "db:generate": "npm run db:generate --prefix packages/server",
+    "db:seed": "npm run db:seed --prefix packages/server",
+    "install:all": "npm install --prefix packages/server && npm install --prefix packages/client",
+    "test": "npm run test --prefix packages/server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
