@@ -11,9 +11,6 @@ service during testing, without maintaining a hand-rolled mock in every test sui
 
 ## Screenshots
 
-> _Add screenshots from your local deployment to `docs/screenshots/` using the filenames
-> below, and they'll render here._
-
 | | |
 |---|---|
 | **Login** | ![Login](docs/screenshots/login.png) |
