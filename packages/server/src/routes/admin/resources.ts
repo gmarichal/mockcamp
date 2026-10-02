@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { prisma } from '../../lib/prisma.js'
 import { requireProjectAccess, requireProjectAdmin } from '../../lib/auth.js'
 import { assertPathInProject, assertResourceInProject } from '../../lib/ownership.js'
-import { sendError } from '../../lib/errors.js'
 
 const resourceSchema = z.object({
   method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']),
@@ -37,68 +36,52 @@ export async function resourceRoutes(app: FastifyInstance) {
   app.get('/:projectId/paths/:pathId/resources', {
     preHandler: (req, rep) => requireProjectAccess(req as Parameters<typeof requireProjectAccess>[0], rep),
   }, async (request, reply) => {
-    try {
-      const { projectId, pathId } = request.params as { projectId: string; pathId: string }
-      await assertPathInProject(pathId, projectId)
-      const resources = await prisma.resource.findMany({
-        where: { pathId },
-        select: resourceSelect,
-        orderBy: { createdAt: 'asc' },
-      })
-      return reply.send(resources)
-    } catch (err) {
-      return sendError(reply, err)
-    }
+    const { projectId, pathId } = request.params as { projectId: string; pathId: string }
+    await assertPathInProject(pathId, projectId)
+    const resources = await prisma.resource.findMany({
+      where: { pathId },
+      select: resourceSelect,
+      orderBy: { createdAt: 'asc' },
+    })
+    return reply.send(resources)
   })
 
   // POST /api/projects/:projectId/paths/:pathId/resources
   app.post('/:projectId/paths/:pathId/resources', {
     preHandler: (req, rep) => requireProjectAccess(req as Parameters<typeof requireProjectAccess>[0], rep),
   }, async (request, reply) => {
-    try {
-      const { projectId, pathId } = request.params as { projectId: string; pathId: string }
-      await assertPathInProject(pathId, projectId)
-      const body = resourceSchema.parse(request.body)
-      const resource = await prisma.resource.create({
-        data: { ...body, pathId },
-        select: resourceSelect,
-      })
-      return reply.code(201).send(resource)
-    } catch (err) {
-      return sendError(reply, err)
-    }
+    const { projectId, pathId } = request.params as { projectId: string; pathId: string }
+    await assertPathInProject(pathId, projectId)
+    const body = resourceSchema.parse(request.body)
+    const resource = await prisma.resource.create({
+      data: { ...body, pathId },
+      select: resourceSelect,
+    })
+    return reply.code(201).send(resource)
   })
 
   // PATCH /api/projects/:projectId/paths/:pathId/resources/:resourceId
   app.patch('/:projectId/paths/:pathId/resources/:resourceId', {
     preHandler: (req, rep) => requireProjectAccess(req as Parameters<typeof requireProjectAccess>[0], rep),
   }, async (request, reply) => {
-    try {
-      const { projectId, resourceId } = request.params as { projectId: string; pathId: string; resourceId: string }
-      await assertResourceInProject(resourceId, projectId)
-      const body = resourceSchema.partial().parse(request.body)
-      const resource = await prisma.resource.update({
-        where: { id: resourceId },
-        data: body,
-        select: resourceSelect,
-      })
-      return reply.send(resource)
-    } catch (err) {
-      return sendError(reply, err)
-    }
+    const { projectId, resourceId } = request.params as { projectId: string; pathId: string; resourceId: string }
+    await assertResourceInProject(resourceId, projectId)
+    const body = resourceSchema.partial().parse(request.body)
+    const resource = await prisma.resource.update({
+      where: { id: resourceId },
+      data: body,
+      select: resourceSelect,
+    })
+    return reply.send(resource)
   })
 
   // DELETE /api/projects/:projectId/paths/:pathId/resources/:resourceId
   app.delete('/:projectId/paths/:pathId/resources/:resourceId', {
     preHandler: (req, rep) => requireProjectAdmin(req as Parameters<typeof requireProjectAdmin>[0], rep),
   }, async (request, reply) => {
-    try {
-      const { projectId, resourceId } = request.params as { projectId: string; pathId: string; resourceId: string }
-      await assertResourceInProject(resourceId, projectId)
-      await prisma.resource.delete({ where: { id: resourceId } })
-      return reply.code(204).send()
-    } catch (err) {
-      return sendError(reply, err)
-    }
+    const { projectId, resourceId } = request.params as { projectId: string; pathId: string; resourceId: string }
+    await assertResourceInProject(resourceId, projectId)
+    await prisma.resource.delete({ where: { id: resourceId } })
+    return reply.code(204).send()
   })
 }

@@ -6,6 +6,7 @@ import websocket from '@fastify/websocket'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { prisma } from './lib/prisma.js'
+import { sendError } from './lib/errors.js'
 import { adminRoutes } from './routes/admin/index.js'
 import { mockEngineRoutes } from './routes/mock-engine.js'
 
@@ -38,6 +39,10 @@ export async function buildApp() {
   })
 
   await app.register(websocket)
+
+  // Admin route handlers throw AppError/ZodError instead of wrapping themselves in
+  // try/catch — this is the single place that turns those into HTTP responses.
+  app.setErrorHandler((err, _request, reply) => sendError(reply, err))
 
   // Accept text/plain and application/xml bodies (for mock requests)
   app.addContentTypeParser('text/plain', { parseAs: 'string' }, (_req, body, done) => {

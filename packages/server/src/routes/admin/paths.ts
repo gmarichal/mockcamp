@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { prisma } from '../../lib/prisma.js'
 import { requireProjectAccess, requireProjectAdmin } from '../../lib/auth.js'
 import { assertPathInProject } from '../../lib/ownership.js'
-import { sendError } from '../../lib/errors.js'
 
 const pathSchema = z.object({
   name: z.string().min(1),
@@ -24,79 +23,63 @@ export async function pathRoutes(app: FastifyInstance) {
   app.get('/:projectId/paths', {
     preHandler: (req, rep) => requireProjectAccess(req as Parameters<typeof requireProjectAccess>[0], rep),
   }, async (request, reply) => {
-    try {
-      const { projectId } = request.params as { projectId: string }
-      const paths = await prisma.path.findMany({
-        where: { projectId },
-        select: pathSelect,
-        orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
-      })
-      return reply.send(paths)
-    } catch (err) {
-      return sendError(reply, err)
-    }
+    const { projectId } = request.params as { projectId: string }
+    const paths = await prisma.path.findMany({
+      where: { projectId },
+      select: pathSelect,
+      orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
+    })
+    return reply.send(paths)
   })
 
   // POST /api/projects/:projectId/paths
   app.post('/:projectId/paths', {
     preHandler: (req, rep) => requireProjectAccess(req as Parameters<typeof requireProjectAccess>[0], rep),
   }, async (request, reply) => {
-    try {
-      const { projectId } = request.params as { projectId: string }
-      const body = pathSchema.parse(request.body)
-      if (body.parentId) await assertPathInProject(body.parentId, projectId)
+    const { projectId } = request.params as { projectId: string }
+    const body = pathSchema.parse(request.body)
+    if (body.parentId) await assertPathInProject(body.parentId, projectId)
 
-      // Auto-assign order at end of siblings
-      const siblingCount = await prisma.path.count({
-        where: { projectId, parentId: body.parentId ?? null },
-      })
+    // Auto-assign order at end of siblings
+    const siblingCount = await prisma.path.count({
+      where: { projectId, parentId: body.parentId ?? null },
+    })
 
-      const path = await prisma.path.create({
-        data: {
-          ...body,
-          parentId: body.parentId ?? null,
-          order: body.order ?? siblingCount,
-          projectId,
-        },
-        select: pathSelect,
-      })
-      return reply.code(201).send(path)
-    } catch (err) {
-      return sendError(reply, err)
-    }
+    const path = await prisma.path.create({
+      data: {
+        ...body,
+        parentId: body.parentId ?? null,
+        order: body.order ?? siblingCount,
+        projectId,
+      },
+      select: pathSelect,
+    })
+    return reply.code(201).send(path)
   })
 
   // PATCH /api/projects/:projectId/paths/:pathId
   app.patch('/:projectId/paths/:pathId', {
     preHandler: (req, rep) => requireProjectAccess(req as Parameters<typeof requireProjectAccess>[0], rep),
   }, async (request, reply) => {
-    try {
-      const { projectId, pathId } = request.params as { projectId: string; pathId: string }
-      await assertPathInProject(pathId, projectId)
-      const body = pathSchema.partial().parse(request.body)
-      if (body.parentId) await assertPathInProject(body.parentId, projectId)
-      const path = await prisma.path.update({
-        where: { id: pathId },
-        data: body,
-        select: pathSelect,
-      })
-      return reply.send(path)
-    } catch (err) {
-      return sendError(reply, err)
-    }
+    const { projectId, pathId } = request.params as { projectId: string; pathId: string }
+    await assertPathInProject(pathId, projectId)
+    const body = pathSchema.partial().parse(request.body)
+    if (body.parentId) await assertPathInProject(body.parentId, projectId)
+    const path = await prisma.path.update({
+      where: { id: pathId },
+      data: body,
+      select: pathSelect,
+    })
+    return reply.send(path)
   })
 
   // DELETE /api/projects/:projectId/paths/:pathId
   app.delete('/:projectId/paths/:pathId', {
     preHandler: (req, rep) => requireProjectAdmin(req as Parameters<typeof requireProjectAdmin>[0], rep),
   }, async (request, reply) => {
-    try {
-      const { projectId, pathId } = request.params as { projectId: string; pathId: string }
-      await assertPathInProject(pathId, projectId)
-      await prisma.path.delete({ where: { id: pathId } })
-      return reply.code(204).send()
-    } catch (err) {
-      return sendError(reply, err)
-    }
+    const { projectId, pathId } = request.params as { projectId: string; pathId: string }
+    await assertPathInProject(pathId, projectId)
+    await prisma.path.delete({ where: { id: pathId } })
+    return reply.code(204).send()
   })
 }
