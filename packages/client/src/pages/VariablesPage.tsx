@@ -9,13 +9,14 @@ import type { Variable } from '@/hooks/useVariables'
 
 const TYPE_META: Record<Variable['type'], { label: string; icon: React.ReactNode; color: string; hint: string }> = {
   STATIC:  { label: 'Static',  icon: <VarIcon size={12} />, color: '#3ECFCF', hint: 'Fixed value — never changes at runtime' },
-  DYNAMIC: { label: 'Dynamic', icon: <Zap size={12} />,     color: '#F6AD55', hint: 'Extracted from the incoming request (body, header, query)' },
+  DYNAMIC: { label: 'Dynamic', icon: <Zap size={12} />,     color: '#F6AD55', hint: 'Extracted from the incoming request (body, header, query, path param)' },
 }
 
 const DYNAMIC_EXAMPLES = [
   'request.body.userId',
   'request.headers["x-tenant"]',
   'request.query.page',
+  'request.params.id',
 ]
 
 // ─── Variable Form ────────────────────────────────────────────────────────────
