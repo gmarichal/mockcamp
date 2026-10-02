@@ -11,13 +11,25 @@ service during testing, without maintaining a hand-rolled mock in every test sui
 
 ## Screenshots
 
-| | |
-|---|---|
-| **Login** | ![Login](docs/screenshots/login.png) |
-| **Projects** | ![Projects](docs/screenshots/projects.png) |
-| **Paths & Resources** | ![Resources](docs/screenshots/resources.png) |
-| **Variables** | ![Variables](docs/screenshots/variables.png) |
-| **Request Logs** | ![Logs](docs/screenshots/logs.png) |
+**Login**
+
+<img src="docs/screenshots/login.png" width="480" alt="Login screen">
+
+**Projects**
+
+<img src="docs/screenshots/projects.png" width="700" alt="Projects list">
+
+**Paths & Resources**
+
+<img src="docs/screenshots/resources.png" width="700" alt="Paths and resources, with a Sequential strategy configured">
+
+**Variables**
+
+<img src="docs/screenshots/variables.png" width="700" alt="Project and resource scoped variables">
+
+**Request Logs**
+
+<img src="docs/screenshots/logs.png" width="700" alt="Live request log viewer">
 
 ## Features
 
