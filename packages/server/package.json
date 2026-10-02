@@ -20,7 +20,7 @@
     "@fastify/multipart": "^8.0.0",
     "@fastify/static": "^7.0.0",
     "@fastify/websocket": "^10.0.0",
-    "@prisma/client": "^5.13.0",
+    "@prisma/client": "^6.19.3",
     "bcryptjs": "^2.4.3",
     "fastify": "^4.27.0",
     "mockcamp-root": "file:../..",
@@ -29,7 +29,7 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.0.0",
-    "prisma": "^5.13.0",
+    "prisma": "^6.19.3",
     "tsx": "^4.10.0",
     "typescript": "^5.4.0",
     "vitest": "^2.1.0"

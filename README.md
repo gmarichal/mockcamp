@@ -8,6 +8,8 @@ directly.
 
 It's aimed at teams that need to simulate a third-party API or an unfinished backend
 service during testing, without maintaining a hand-rolled mock in every test suite.
+It runs as a single process with a local SQLite database — no separate database server
+to install or manage.
 
 ## Screenshots
 
@@ -61,7 +63,7 @@ service during testing, without maintaining a hand-rolled mock in every test sui
 
 | | |
 |---|---|
-| **Server** | [Fastify](https://fastify.io) + [Prisma](https://www.prisma.io) ORM on [PostgreSQL](https://www.postgresql.org), JWT auth (`@fastify/jwt`), [Zod](https://zod.dev) validation, bcrypt password hashing |
+| **Server** | [Fastify](https://fastify.io) + [Prisma](https://www.prisma.io) ORM on [SQLite](https://www.sqlite.org), JWT auth (`@fastify/jwt`), [Zod](https://zod.dev) validation, bcrypt password hashing |
 | **Client** | [React](https://react.dev) + [Vite](https://vitejs.dev), [TanStack Query](https://tanstack.com/query) for data fetching, [Tailwind CSS](https://tailwindcss.com), React Router |
 | **Testing** | [Vitest](https://vitest.dev) |
 | **Language** | TypeScript end to end (strict mode, ESM/`NodeNext`) |
@@ -69,7 +71,9 @@ service during testing, without maintaining a hand-rolled mock in every test sui
 ## Requirements
 
 - Node.js 20+
-- PostgreSQL 14+
+
+No separate database to install — MockCamp uses SQLite, stored as a single file next to
+the server.
 
 ## Installation
 
@@ -80,7 +84,8 @@ npm run install:all
 
 # 2. Configure the server's environment
 cp packages/server/.env.example packages/server/.env
-# Edit packages/server/.env — at minimum, set DATABASE_URL to a reachable Postgres instance
+# The default DATABASE_URL (a local SQLite file) and JWT_SECRET already work for local use —
+# only change JWT_SECRET before deploying anywhere other than your own machine.
 
 # 3. Run database migrations
 npm run db:migrate
@@ -134,8 +139,8 @@ A single Fastify server exposes two separate surfaces:
   resource's strategy, delay, and error rate — with no authentication required, since
   these are meant to be called like a real third-party API.
 
-Every mock request is logged to PostgreSQL and shows up in that project's **Logs**
-screen in near real time (the log viewer polls every 5 seconds).
+Every mock request is logged to the local SQLite database and shows up in that project's
+**Logs** screen in near real time (the log viewer polls every 5 seconds).
 
 ## Project structure
 
