@@ -185,3 +185,7 @@ Run these from the repo root (`mockcamp/`):
 
 After seeding: **`admin@mockcamp.local`** / **`admin123`**.
 A password change is required on first login.
+
+## License
+
+[MIT](LICENSE)
