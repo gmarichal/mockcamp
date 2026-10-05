@@ -9,7 +9,7 @@ async function main() {
   // Create default admin user
   const existing = await prisma.user.findUnique({ where: { email: 'admin@mockcamp.local' } })
   if (!existing) {
-    const hash = await bcrypt.hash('admin123', 10)
+    const hash = await bcrypt.hash('happyMocking123', 10)
     await prisma.user.create({
       data: {
         email: 'admin@mockcamp.local',
@@ -19,7 +19,7 @@ async function main() {
         mustChangePassword: true,
       },
     })
-    console.log('✅ Admin user created: admin@mockcamp.local / admin123')
+    console.log('✅ Admin user created: admin@mockcamp.local / happyMocking123')
     console.log('   ⚠️  Password change required on first login')
   } else {
     console.log('ℹ️  Admin user already exists, skipping')

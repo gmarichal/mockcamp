@@ -108,7 +108,7 @@ everything from a single port — open **http://localhost:3000/_admin**.
 
    ```
    Email:    admin@mockcamp.local
-   Password: admin123
+   Password: happyMocking123
    ```
 
 3. You'll immediately be asked to set a new password — this is enforced on first login
@@ -200,7 +200,7 @@ Run these from the repo root (`mockcamp/`):
 
 ## Default credentials
 
-After seeding: **`admin@mockcamp.local`** / **`admin123`**.
+After seeding: **`admin@mockcamp.local`** / **`happyMocking123`**.
 A password change is required on first login.
 
 ## License
