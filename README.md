@@ -142,6 +142,23 @@ A single Fastify server exposes two separate surfaces:
 Every mock request is logged to the local SQLite database and shows up in that project's
 **Logs** screen in near real time (the log viewer polls every 5 seconds).
 
+The key idea: your **System Under Test** doesn't know the difference. It calls MockCamp
+over plain HTTP using the exact same contract it would use against the real dependency —
+only the base URL changes.
+
+```mermaid
+flowchart LR
+    subgraph Prod["Normally"]
+        SUT1["System Under Test"] --> Real["Real / third-party API"]
+    end
+
+    subgraph Test["During testing"]
+        QA["QA Engineer"] -->|"configures endpoints<br/>& responses"| MC["MockCamp"]
+        SUT2["System Under Test"] -->|"same HTTP contract,<br/>different base URL"| MC
+        MC -->|"simulated response"| SUT2
+    end
+```
+
 ## Project structure
 
 ```
