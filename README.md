@@ -77,20 +77,23 @@ the server.
 
 ## Installation
 
+### Local machine (just you)
+
 ```bash
 # 1. Install dependencies for both packages
 #    (plain `npm install` at the root only installs the dev tooling — use this instead)
 npm run install:all
 
-# 2. Configure the server's environment
+# 2. Configure the server's environment — the defaults work as-is for local use,
+#    no edits needed (including JWT_SECRET, see note below)
 cp packages/server/.env.example packages/server/.env
-# The default DATABASE_URL (a local SQLite file) and JWT_SECRET already work for local use —
-# only change JWT_SECRET before deploying anywhere other than your own machine.
 
-# 3. Run database migrations
+# 3. Create the database and apply migrations (only needed the first time, or after
+#    pulling changes that add a new migration — safe to re-run otherwise, it's a no-op)
 npm run db:migrate
 
-# 4. Seed the initial admin user
+# 4. Seed the initial admin user (only needed the first time — it's a no-op if the
+#    admin user already exists, so re-running is harmless)
 npm run db:seed
 
 # 5. Start the dev server (server on :3000, client on :5173)
@@ -100,6 +103,15 @@ npm run dev
 Open **http://localhost:5173** during development (it proxies API calls to the server).
 In production, `npm run build` bundles the client into the server, which then serves
 everything from a single port — open **http://localhost:3000/_admin**.
+
+### Shared or deployed machine (anyone besides you can reach it)
+
+Before starting the server, edit `packages/server/.env` and replace the placeholder
+`JWT_SECRET` with a real secret (e.g. `openssl rand -hex 32`). The default value is
+fine for a database only you can reach, but it ships the same for everyone who clones
+the repo — leaving it in place anywhere reachable by others lets them forge valid
+login tokens. Everything else in [Local machine](#local-machine-just-you) above applies
+the same way.
 
 ## Getting started
 
